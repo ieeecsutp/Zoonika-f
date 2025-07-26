@@ -6,7 +6,7 @@ export default function HeaderNav() {
     <header id="mainHeader" className="fixed top-0 left-0 w-full bg-transparent shadow-md px-4 py-3 transition-colors duration-300 z-50">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         {/* Logo */}
-        <div className="font-[var(--font-inter)] text-3xl font-bold">
+        <div className="font-inter text-3xl font-bold">
           Zoo<strong className="text-cyan-500">nika</strong>
         </div>
         {/* Menú de navegación - solo visible en md+ */}
