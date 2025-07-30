@@ -1,30 +1,50 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState, useRef } from "react";
+import Link from "next/link";
 
-const galerias = [
-  { imagen: "/img/imgVeterinaria.png" },
-  { imagen: "/img/imgVeterinaria2.png" },
-  { imagen: "/img/imgVeterinaria3.png" },
-  { imagen: "/img/imgVeterinaria4.png" },
-  { imagen: "/img/imgVeterinaria5.png" },
-  { imagen: "/img/imgVeterinaria6.png" },
-  { imagen: "/img/imgVeterinaria7.png" },
-  { imagen: "/img/imgVeterinaria8.png" }
-];
+// Tipos para usuario y comentarios
+const initialAuth = { email: "", password: "" };
 
 export default function Galeria() {
+  const [galerias, setGalerias] = useState([]);
+  const [loading, setLoading] = useState(true);
+  // Solo galería visual, sin autenticación ni comentarios
+
+  // Cargar galerías
+  useEffect(() => {
+    fetch("http://localhost:4000/galerias")
+      .then((res) => res.json())
+      .then((data) => {
+        setGalerias(data);
+        setLoading(false);
+      });
+  }, []);
+
+
+
   return (
     <section className="galerias-section">
       <div className="container">
         <h2 className="galerias-title">Galeria</h2>
         <p className="galerias-subtitle">Conoce más sobre nuestro trabajo y el cariño con el que cuidamos a tus mascotas</p>
-        <div className="galerias-grid">
-          {galerias.map((galeria, idx) => (
-            <div className="galeria-card" key={idx}>
-              <img src={galeria.imagen} className="galeria-card-image" alt="Galería veterinaria" />
-            </div>
-          ))}
-        </div>
+
+
+        {/* Solo galería visual, sin autenticación ni comentarios */}
+
+        {/* Galería visual */}
+        {loading ? (
+          <div className="text-center py-10">Cargando galería...</div>
+        ) : (
+          <div className="galerias-grid">
+            {galerias.map((galeria) => (
+              <Link href={`/galeria/${galeria.id}`} key={galeria.id} className="galeria-card-link">
+                <div className="galeria-card">
+                  <img src={galeria.imagenUrl} className="galeria-card-image" alt="Galería veterinaria" />
+                </div>
+              </Link>
+            ))}
+          </div>
+        )}
       </div>
       <style jsx>{`
         .galerias-section {
@@ -75,6 +95,10 @@ export default function Galeria() {
           height: auto;
           border-radius: 10px;
         }
+        .galeria-card-link {
+          text-decoration: none;
+          color: inherit;
+        }
         @media (max-width: 768px) {
           .galerias-grid {
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -93,6 +117,67 @@ export default function Galeria() {
             border-radius: 10px;
           }
         }
+      .comentarios-section {
+        margin: 2.5rem 0 2rem 0;
+        background: #f6fcff;
+        border-radius: 8px;
+        padding: 1.5rem 1rem;
+      }
+      .comentario-card {
+        background: #fff;
+        border: 1px solid #e1e8ed;
+        border-radius: 6px;
+        margin-bottom: 1rem;
+        padding: 0.7rem 1rem;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+      }
+      .comentario-nombre {
+        font-weight: 600;
+        color: #17a2b8;
+      }
+      .comentario-texto {
+        margin: 0.3rem 0 0.2rem 0;
+      }
+      .comentario-valoracion {
+        font-size: 0.95rem;
+        color: #888;
+      }
+      .comentario-propio {
+        color: #1cae4e;
+        font-size: 0.9rem;
+        margin-left: 0.5rem;
+      }
+      .comentario-form {
+        margin-top: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.7rem;
+      }
+      .comentario-form textarea {
+        border: 1px solid #b2d8e6;
+        border-radius: 5px;
+        padding: 0.5rem;
+        font-size: 1rem;
+        resize: vertical;
+      }
+      .valoracion-row {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+      }
+      .comentario-form button {
+        background: #17a2b8;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        padding: 0.4rem 1rem;
+        font-weight: 600;
+        cursor: pointer;
+      }
+      .logout-btn {
+        background: #e74c3c !important;
+        margin-left: 1rem;
+      }
       `}</style>
     </section>
   );
