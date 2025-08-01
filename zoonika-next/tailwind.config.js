@@ -9,6 +9,9 @@ module.exports = {
       fontFamily: {
         inter: "var(--font-inter)",
       },
+      backgroundImage: {
+        'hero-img': "url('/img/hero/heroPage.webp')",
+      },
     },
   },
   plugins: [],
