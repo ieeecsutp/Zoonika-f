@@ -1,11 +1,9 @@
-
 "use client";
 import React, { useEffect, useState } from "react";
-import HeaderNav from "../../../components/HeaderNav";
-import Footer from "../../../components/Footer";
+import HeaderNav from "../../../components/commons/HeaderNav";
+import Footer from "../../../components/commons/Footer";
+import HeroPage from "../../../components/Hero/heroPages";
 import { useParams } from "next/navigation";
-
-
 
 interface Comentario {
   id: number;
@@ -50,10 +48,20 @@ const GaleriaDetalle = () => {
   // Autenticación local solo en memoria
   const [usuario, setUsuario] = useState<Usuario | null>(null);
   const [auth, setAuth] = useState({ email: "", password: "" });
-  const [authMsg, setAuthMsg] = useState<{ type: "success" | "error" | ""; text: string }>({ type: "", text: "" });
+  const [authMsg, setAuthMsg] = useState<{
+    type: "success" | "error" | "";
+    text: string;
+  }>({ type: "", text: "" });
   const [showRegister, setShowRegister] = useState(false);
-  const [register, setRegister] = useState({ nombre: "", email: "", password: "" });
-  const [registerMsg, setRegisterMsg] = useState<{ type: "success" | "error" | ""; text: string }>({ type: "", text: "" });
+  const [register, setRegister] = useState({
+    nombre: "",
+    email: "",
+    password: "",
+  });
+  const [registerMsg, setRegisterMsg] = useState<{
+    type: "success" | "error" | "";
+    text: string;
+  }>({ type: "", text: "" });
   const [inactividadRef, setInactividadRef] = useState<any>(null);
 
   // Cierre de sesión por inactividad (10 min)
@@ -84,7 +92,6 @@ const GaleriaDetalle = () => {
     window.addEventListener("beforeunload", handleUnload);
     return () => window.removeEventListener("beforeunload", handleUnload);
   }, []);
-
 
   // Login
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -118,7 +125,10 @@ const GaleriaDetalle = () => {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Error de registro");
-      setRegisterMsg({ type: "success", text: "¡Registro exitoso! Ahora puedes iniciar sesión." });
+      setRegisterMsg({
+        type: "success",
+        text: "¡Registro exitoso! Ahora puedes iniciar sesión.",
+      });
       setRegister({ nombre: "", email: "", password: "" });
     } catch (err: any) {
       setRegisterMsg({ type: "error", text: err.message });
@@ -139,22 +149,31 @@ const GaleriaDetalle = () => {
         if (!res.ok) throw new Error("No encontrada");
         return res.json();
       })
-      .then((data: Galeria) => {
-        setGaleria(data);
-        setLoading(false);
-        // Si usuario autenticado, buscar si ya tiene comentario
-        if (usuario && data.comentarios) {
-          const propio = data.comentarios.find((c: Comentario) => c.usuarioId === usuario.id);
-          if (propio) {
-            setComentario(propio.comentario);
-            setValoracion(propio.valoracion);
-            setComentarioId(propio.id);
-          } else {
-            setComentario("");
-            setValoracion(5);
-            setComentarioId(null);
+      .then((data) => {
+        // Verificamos que 'data' sea un objeto, no un array ni nulo
+        console.log("Respuesta del backend:", data);
+        if (!data || Array.isArray(data)) {
+          setError("Datos inválidos");
+          setGaleria(null);
+        } else {
+          setGaleria(data);
+          // Si usuario autenticado, buscar si ya tiene comentario
+          if (usuario && data.comentarios) {
+            const propio = data.comentarios.find(
+              (c: Comentario) => c.usuarioId === usuario.id
+            );
+            if (propio) {
+              setComentario(propio.comentario);
+              setValoracion(propio.valoracion);
+              setComentarioId(propio.id);
+            } else {
+              setComentario("");
+              setValoracion(5);
+              setComentarioId(null);
+            }
           }
         }
+        setLoading(false);
       })
       .catch(() => {
         setError("No encontrada");
@@ -212,12 +231,15 @@ const GaleriaDetalle = () => {
       </div>
     );
   }
+
   if (error || !galeria) {
     return (
       <div className="min-h-screen flex flex-col">
         <HeaderNav isLanding={false} />
         <main className="flex-1 flex items-center justify-center bg-gray-100">
-          <div className="text-xl text-red-500">Galería no encontrada</div>
+          <div className="text-xl text-red-500">
+            Galería no encontrada o datos inválidos
+          </div>
         </main>
         <Footer />
       </div>
@@ -227,140 +249,220 @@ const GaleriaDetalle = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <HeaderNav isLanding={false} />
-      <main className="flex-1 bg-gray-100 flex flex-col items-center pt-8 md:pt-16 pb-8">
-        {/* Bloque horizontal: imagen y descripción */}
-        <section className="w-full max-w-4xl bg-white rounded-2xl shadow-lg flex flex-col md:flex-row gap-0 md:gap-8 p-6 md:p-10">
-          <div className="flex justify-center items-center p-2 md:p-0 w-full md:w-1/2">
-            <img
-              src={galeria.imagenUrl}
-              alt="Detalle galería"
-              className="w-full max-w-xs h-auto rounded-xl object-cover"
-            />
-          </div>
-          <div className="flex flex-col justify-center px-2 md:px-0 w-full md:w-1/2">
-            <h1 className="text-3xl font-bold text-cyan-600 mb-2">Detalle del trabajo</h1>
-            <p className="text-gray-700 mb-1">Especialista: <b>{galeria.especialista?.nombre}</b></p>
-            <p className="text-gray-600 mb-6 whitespace-pre-line">{galeria.descripcion}</p>
+      <HeroPage />
+      <main className="flex-1 bg-gray-100 flex flex-col items-center">
+        {/* Sección 1: imagen + descripción, fondo blanco */}
+        <section className="w-full bg-cyan-50 ">
+          <div className="max-w-7xl mx-auto flex flex-col md:flex-row gap-0 md:gap-8 p-6 md:p-10">
+            <div className="flex justify-center items-center p-2 md:p-0 w-full md:w-1/2">
+              <img
+                src={galeria.imagenUrl}
+                alt="Detalle galería"
+                className="w-full max-w-xs h-auto rounded-xl object-cover"
+              />
+            </div>
+            <div className="flex flex-col justify-center px-2 md:px-0 w-full md:w-1/2 text-center md:text-left">
+              <h1 className="text-3xl font-bold text-cyan-600 mb-2">
+                Detalle del trabajo
+              </h1>
+              <p className="text-gray-700 mb-1">
+                Especialista: <b>{galeria.especialista?.nombre}</b>
+              </p>
+              <p className="text-gray-600 mb-6 whitespace-pre-line">
+                {galeria.descripcion}
+              </p>
+            </div>
           </div>
         </section>
-        {/* Bloque vertical: comentarios y login/registro */}
-        <section className="w-full max-w-4xl mt-8 bg-white rounded-2xl shadow-lg p-6 md:p-10">
-          <h2 className="text-xl font-semibold mb-2">Comentarios y valoraciones</h2>
-          {galeria.comentarios && galeria.comentarios.length > 0 ? (
-            <div className="space-y-4 mb-4">
-              {galeria.comentarios.map((comentario) => (
-                <div key={comentario.id} className="border rounded-lg p-3 bg-gray-50">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="font-semibold text-cyan-700">Usuario #{comentario.usuarioId}</span>
-                    <span className="text-yellow-400 text-lg">{'★'.repeat(comentario.valoracion)}</span>
-                  </div>
-                  <div className="text-gray-700 whitespace-pre-line">{comentario.comentario}</div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="text-gray-400 mb-4">Aún no hay comentarios.</div>
-          )}
-          {/* Autenticación y comentarios */}
-          {!usuario && !showRegister && (
-            <form onSubmit={handleLogin} className="auth-mini-form mb-2">
-              <div className="auth-mini-title">Iniciar sesión para comentar</div>
-              <input
-                type="email"
-                placeholder="Email"
-                value={auth.email}
-                onChange={e => setAuth(a => ({ ...a, email: e.target.value }))}
-                required
-              />
-              <input
-                type="password"
-                placeholder="Contraseña"
-                value={auth.password}
-                onChange={e => setAuth(a => ({ ...a, password: e.target.value }))}
-                required
-              />
-              <button type="submit">Entrar</button>
-              {authMsg.text && (
-                <div className={authMsg.type === "success" ? "msg-success" : "msg-error"}>{authMsg.text}</div>
-              )}
-              <div className="text-center mt-2">
-                <button type="button" className="register-link" onClick={() => { setShowRegister(true); setRegisterMsg({ type: "", text: "" }); }}>
-                  ¿No tienes cuenta? Regístrate
-                </button>
-              </div>
-            </form>
-          )}
-          {!usuario && showRegister && (
-            <form onSubmit={handleRegister} className="auth-mini-form mb-2">
-              <div className="auth-mini-title">Registro de usuario</div>
-              <input
-                type="text"
-                placeholder="Nombre"
-                value={register.nombre}
-                onChange={e => setRegister(r => ({ ...r, nombre: e.target.value }))}
-                required
-              />
-              <input
-                type="email"
-                placeholder="Email"
-                value={register.email}
-                onChange={e => setRegister(r => ({ ...r, email: e.target.value }))}
-                required
-              />
-              <input
-                type="password"
-                placeholder="Contraseña"
-                value={register.password}
-                onChange={e => setRegister(r => ({ ...r, password: e.target.value }))}
-                required
-              />
-              <button type="submit">Registrarme</button>
-              {registerMsg.text && (
-                <div className={registerMsg.type === "success" ? "msg-success" : "msg-error"}>{registerMsg.text}</div>
-              )}
-              <div className="text-center mt-2">
-                <button type="button" className="register-link" onClick={() => setShowRegister(false)}>
-                  ¿Ya tienes cuenta? Inicia sesión
-                </button>
-              </div>
-            </form>
-          )}
-          {usuario && (
-            <form className="flex flex-col gap-4" onSubmit={handleComentario}>
-              <textarea
-                placeholder="Deja tu comentario..."
-                className="min-h-[80px] rounded-lg border border-gray-300 p-2 resize-none bg-gray-100"
-                value={comentario}
-                onChange={e => setComentario(e.target.value)}
-                required
-              />
-              <div className="text-yellow-400 text-2xl flex gap-1">
-                {Array.from({ length: 5 }, (_, i) => (
-                  <span
-                    key={i}
-                    className={valoracion > i ? "cursor-pointer" : "cursor-pointer opacity-40"}
-                    onClick={() => setValoracion(i + 1)}
-                    role="button"
-                    aria-label={`Valorar ${i + 1} estrellas`}
+
+        {/* Sección 2: fondo gris claro, contenido blanco centrado */}
+        <section className="w-full bg-white">
+          <div className="max-w-7xl mx-auto p-6 md:p-10">
+            <h2 className="text-xl font-semibold mb-2">
+              Comentarios y valoraciones
+            </h2>
+            {galeria.comentarios && galeria.comentarios.length > 0 ? (
+              <div className="space-y-4 mb-4">
+                {galeria.comentarios.map((comentario) => (
+                  <div
+                    key={comentario.id}
+                    className="border rounded-lg p-3 bg-gray-50"
                   >
-                    ★
-                  </span>
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="font-semibold text-cyan-700">
+                        Usuario #{comentario.usuarioId}
+                      </span>
+                      <span className="text-yellow-400 text-lg">
+                        {"★".repeat(comentario.valoracion)}
+                      </span>
+                    </div>
+                    <div className="text-gray-700 whitespace-pre-line">
+                      {comentario.comentario}
+                    </div>
+                  </div>
                 ))}
               </div>
-              <div className="flex gap-2 items-center">
-                <button
-                  type="submit"
-                  className="bg-cyan-600 text-white rounded-lg px-6 py-2 text-base font-semibold disabled:opacity-60"
-                  disabled={comentarioLoading}
-                >
-                  {comentarioId ? (comentarioLoading ? "Guardando..." : "Editar comentario") : (comentarioLoading ? "Enviando..." : "Comentar")}
-                </button>
-                <button type="button" onClick={handleLogout} className="logout-btn">Cerrar sesión</button>
-              </div>
-              {comentarioError && <p className="text-red-500 text-sm">{comentarioError}</p>}
-              {comentarioId && <p className="text-green-600 text-xs">Puedes editar tu comentario.</p>}
-            </form>
-          )}
+            ) : (
+              <div className="text-gray-400 mb-4">Aún no hay comentarios.</div>
+            )}
+            {/* Autenticación y comentarios */}
+            {!usuario && !showRegister && (
+              <form onSubmit={handleLogin} className="auth-mini-form mb-2">
+                <div className="auth-mini-title">
+                  Iniciar sesión para comentar
+                </div>
+                <input
+                  type="email"
+                  placeholder="Email"
+                  value={auth.email}
+                  onChange={(e) =>
+                    setAuth((a) => ({ ...a, email: e.target.value }))
+                  }
+                  required
+                />
+                <input
+                  type="password"
+                  placeholder="Contraseña"
+                  value={auth.password}
+                  onChange={(e) =>
+                    setAuth((a) => ({ ...a, password: e.target.value }))
+                  }
+                  required
+                />
+                <button type="submit">Entrar</button>
+                {authMsg.text && (
+                  <div
+                    className={
+                      authMsg.type === "success" ? "msg-success" : "msg-error"
+                    }
+                  >
+                    {authMsg.text}
+                  </div>
+                )}
+                <div className="text-center mt-2">
+                  <span
+                    onClick={() => {
+                      setShowRegister(true);
+                      setRegisterMsg({ type: "", text: "" });
+                    }}
+                    className="text-cyan-600 underline cursor-pointer text-sm hover:text-cyan-800 transition-colors"
+                  >
+                    ¿No tienes cuenta? Regístrate
+                  </span>
+                </div>
+              </form>
+            )}
+            {!usuario && showRegister && (
+              <form onSubmit={handleRegister} className="auth-mini-form mb-2">
+                <div className="auth-mini-title">Registro de usuario</div>
+                <input
+                  type="text"
+                  placeholder="Nombre"
+                  value={register.nombre}
+                  onChange={(e) =>
+                    setRegister((r) => ({ ...r, nombre: e.target.value }))
+                  }
+                  required
+                />
+                <input
+                  type="email"
+                  placeholder="Email"
+                  value={register.email}
+                  onChange={(e) =>
+                    setRegister((r) => ({ ...r, email: e.target.value }))
+                  }
+                  required
+                />
+                <input
+                  type="password"
+                  placeholder="Contraseña"
+                  value={register.password}
+                  onChange={(e) =>
+                    setRegister((r) => ({ ...r, password: e.target.value }))
+                  }
+                  required
+                />
+                <button type="submit">Registrarme</button>
+                {registerMsg.text && (
+                  <div
+                    className={
+                      registerMsg.type === "success"
+                        ? "msg-success"
+                        : "msg-error"
+                    }
+                  >
+                    {registerMsg.text}
+                  </div>
+                )}
+                <div className="text-center mt-2">
+                  <span
+                    onClick={() => setShowRegister(false)}
+                    className="text-cyan-600 underline cursor-pointer text-sm hover:text-cyan-800 transition-colors"
+                  >
+                    ¿Ya tienes cuenta? Inicia sesión
+                  </span>
+                </div>
+              </form>
+            )}
+            {usuario && (
+              <form className="flex flex-col gap-4" onSubmit={handleComentario}>
+                <textarea
+                  placeholder="Deja tu comentario..."
+                  className="min-h-[80px] rounded-lg border border-gray-300 p-2 resize-none bg-gray-100"
+                  value={comentario}
+                  onChange={(e) => setComentario(e.target.value)}
+                  required
+                />
+                <div className="text-yellow-400 text-2xl flex gap-1">
+                  {Array.from({ length: 5 }, (_, i) => (
+                    <span
+                      key={i}
+                      className={
+                        valoracion > i
+                          ? "cursor-pointer"
+                          : "cursor-pointer opacity-40"
+                      }
+                      onClick={() => setValoracion(i + 1)}
+                      role="button"
+                      aria-label={`Valorar ${i + 1} estrellas`}
+                    >
+                      ★
+                    </span>
+                  ))}
+                </div>
+                <div className="flex gap-2 items-center">
+                  <button
+                    type="submit"
+                    className="bg-cyan-600 text-white rounded-lg px-6 py-2 text-base font-semibold disabled:opacity-60"
+                    disabled={comentarioLoading}
+                  >
+                    {comentarioId
+                      ? comentarioLoading
+                        ? "Guardando..."
+                        : "Editar comentario"
+                      : comentarioLoading
+                      ? "Enviando..."
+                      : "Comentar"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleLogout}
+                    className="logout-btn"
+                  >
+                    Cerrar sesión
+                  </button>
+                </div>
+                {comentarioError && (
+                  <p className="text-red-500 text-sm">{comentarioError}</p>
+                )}
+                {comentarioId && (
+                  <p className="text-green-600 text-xs">
+                    Puedes editar tu comentario.
+                  </p>
+                )}
+              </form>
+            )}
+          </div>
         </section>
       </main>
 
@@ -368,14 +470,14 @@ const GaleriaDetalle = () => {
         .auth-mini-form {
           max-width: 320px;
           margin: 0 auto 1.5rem auto;
-          background: #fff;
+          background: #eaf9fdff;
           border: 1px solid #e1e8ed;
           border-radius: 8px;
           padding: 1.2rem 1rem;
           display: flex;
           flex-direction: column;
           gap: 0.7rem;
-          box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
         }
         .auth-mini-title {
           font-weight: 600;
