@@ -1,7 +1,30 @@
 "use client";
-import React from "react";
+import React, { useState, useEffect } from "react";
 
 export default function HeaderNav({ isLanding = true }) {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  useEffect(() => {
+    if (isLanding) {
+      const handleScroll = () => {
+        const header = document.getElementById('mainHeader');
+        if (header) {
+          if (window.scrollY > 10) {
+            header.classList.add('bg-white');
+          } else {
+            header.classList.remove('bg-white');
+          }
+        }
+      };
+
+      window.addEventListener('scroll', handleScroll);
+      return () => window.removeEventListener('scroll', handleScroll);
+    }
+  }, [isLanding]);
+
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
+  };
   return (
     <header
       id="mainHeader"
@@ -17,10 +40,11 @@ export default function HeaderNav({ isLanding = true }) {
           {isLanding ? (
             <>
               <a href="#" className="hover:text-cyan-500">Inicio</a>
-              <a href="#" className="hover:text-cyan-500">Nosotros</a>
+              <a href="#acerca" className="hover:text-cyan-500">Nosotros</a>
               <a href="#services" className="hover:text-cyan-500">Servicios</a>
+              <a href="#galeria" className="hover:text-cyan-500">Galería</a>
               <a href="#testimonio" className="hover:text-cyan-500">Testimonio</a>
-              <a href="#" className="hover:text-cyan-500">Contacto</a>
+              <a href="#contacto" className="hover:text-cyan-500">Contacto</a>
             </>
           ) : (
             <a href="/" className="hover:text-cyan-500">Volver al inicio</a>
@@ -37,7 +61,7 @@ export default function HeaderNav({ isLanding = true }) {
         {/* Botón hamburguesa solo en landing */}
         {isLanding && (
           <button
-            id="menuToggle"
+            onClick={toggleMenu}
             className="md:hidden text-2xl focus:outline-none"
             aria-label="Abrir menú"
           >
@@ -48,45 +72,19 @@ export default function HeaderNav({ isLanding = true }) {
       {/* Menú desplegable móvil solo en landing */}
       {isLanding && (
         <div
-          id="mobileMenu"
-          className="hidden flex-col space-y-4 mt-4 px-4 md:hidden transition-all duration-300 ease-in-out"
+          className={`flex-col space-y-4 mt-4 px-4 md:hidden transition-all duration-300 ease-in-out ${
+            isMenuOpen ? 'flex' : 'hidden'
+          }`}
         >
           <nav className="flex flex-col space-y-2">
             <a href="#" className="hover:text-cyan-500">Inicio</a>
-            <a href="#" className="hover:text-cyan-500">Nosotros</a>
+            <a href="#acerca" className="hover:text-cyan-500">Nosotros</a>
             <a href="#services" className="hover:text-cyan-500">Servicios</a>
+            <a href="#galeria" className="hover:text-cyan-500">Galería</a>
             <a href="#testimonio" className="hover:text-cyan-500">Testimonio</a>
-            <a href="#" className="hover:text-cyan-500">Contacto</a>
+            <a href="#contacto" className="hover:text-cyan-500">Contacto</a>
           </nav>
         </div>
-      )}
-      {/* Script solo en landing */}
-      {isLanding && (
-        <script dangerouslySetInnerHTML={{
-          __html: `
-          document.addEventListener('DOMContentLoaded', function() {
-            const toggle = document.getElementById('menuToggle');
-            const menu = document.getElementById('mobileMenu');
-            const header = document.getElementById('mainHeader');
-            const handleScroll = () => {
-              if(window.scrollY > 10) {
-                header.classList.add('bg-white');
-              } else {
-                header.classList.remove('bg-white');
-              }
-            };
-            toggle?.addEventListener('click', function() {
-              menu.classList.toggle('hidden');
-            });
-            document.addEventListener('click', function(e) {
-              if (!menu.contains(e.target) && !toggle.contains(e.target)) {
-                menu.classList.add('hidden');
-              }
-            });
-            window.addEventListener('scroll', handleScroll);
-          });
-        `
-        }} />
       )}
     </header>
   );
