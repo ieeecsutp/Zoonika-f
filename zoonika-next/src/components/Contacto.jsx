@@ -3,7 +3,7 @@ import React from "react";
 
 export default function Contacto() {
   return (
-    <section className="contact-section">
+    <section id="contacto" className="contact-section">
       <div className="container">
         <div className="contact-content">
           <div className="contact-image">
