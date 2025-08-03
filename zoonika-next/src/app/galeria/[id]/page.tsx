@@ -4,6 +4,7 @@ import HeaderNav from "../../../components/commons/HeaderNav";
 import Footer from "../../../components/commons/Footer";
 import HeroPage from "../../../components/Hero/heroPages";
 import { useParams } from "next/navigation";
+import { api } from "../../../utils/api";
 
 interface Comentario {
   id: number;
@@ -11,6 +12,11 @@ interface Comentario {
   valoracion: number;
   usuarioId: number;
   galeriaId: number;
+  usuario?: {
+    id: number;
+    nombre: string;
+    email: string;
+  };
 }
 
 interface Especialista {
@@ -98,13 +104,8 @@ const GaleriaDetalle = () => {
     e.preventDefault();
     setAuthMsg({ type: "", text: "" });
     try {
-      const res = await fetch("http://localhost:4000/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(auth),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Error de autenticación");
+      const data = await api.login(auth);
+      if (data.error) throw new Error(data.error);
       setUsuario(data);
       setAuthMsg({ type: "success", text: "¡Bienvenido!" });
       setAuth({ email: "", password: "" });
@@ -118,13 +119,8 @@ const GaleriaDetalle = () => {
     e.preventDefault();
     setRegisterMsg({ type: "", text: "" });
     try {
-      const res = await fetch("http://localhost:4000/auth/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(register),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Error de registro");
+      const data = await api.register(register);
+      if (data.error) throw new Error(data.error);
       setRegisterMsg({
         type: "success",
         text: "¡Registro exitoso! Ahora puedes iniciar sesión.",
@@ -144,14 +140,9 @@ const GaleriaDetalle = () => {
   // Cargar galería y comentarios
   useEffect(() => {
     if (!galeriaId) return;
-    fetch(`http://localhost:4000/galerias/${galeriaId}`)
-      .then((res) => {
-        if (!res.ok) throw new Error("No encontrada");
-        return res.json();
-      })
+    api.getGaleria(galeriaId)
       .then((data) => {
         // Verificamos que 'data' sea un objeto, no un array ni nulo
-        console.log("Respuesta del backend:", data);
         if (!data || Array.isArray(data)) {
           setError("Datos inválidos");
           setGaleria(null);
@@ -188,31 +179,31 @@ const GaleriaDetalle = () => {
     setComentarioLoading(true);
     try {
       if (!usuario) throw new Error("Debes iniciar sesión");
-      const endpoint = comentarioId
-        ? `http://localhost:4000/comentarios/${comentarioId}`
-        : "http://localhost:4000/comentarios";
-      const method = comentarioId ? "PUT" : "POST";
+      
       const body = {
         comentario,
         valoracion,
         usuarioId: usuario.id,
         galeriaId: Number(galeriaId),
       };
-      const res = await fetch(endpoint, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Error");
+
+      let data;
+      if (comentarioId) {
+        data = await api.updateComentario(comentarioId, body);
+      } else {
+        data = await api.createComentario(body);
+      }
+
+      if (data.error) throw new Error(data.error);
+      
       // Refrescar comentarios
       setComentarioId(data.id);
       setComentario(data.comentario);
       setValoracion(data.valoracion);
+      
       // Recargar galería para mostrar comentarios actualizados
-      fetch(`http://localhost:4000/galerias/${galeriaId}`)
-        .then((res) => res.json())
-        .then((data: Galeria) => setGaleria(data));
+      const updatedGaleria = await api.getGaleria(galeriaId);
+      setGaleria(updatedGaleria);
     } catch (err: any) {
       setComentarioError(err.message);
     } finally {
@@ -290,7 +281,7 @@ const GaleriaDetalle = () => {
                   >
                     <div className="flex items-center gap-2 mb-1">
                       <span className="font-semibold text-cyan-700">
-                        Usuario #{comentario.usuarioId}
+                        {comentario.usuario?.nombre || comentario.usuario?.email || `Usuario registrado`}
                       </span>
                       <span className="text-yellow-400 text-lg">
                         {"★".repeat(comentario.valoracion)}
@@ -405,7 +396,11 @@ const GaleriaDetalle = () => {
               </form>
             )}
             {usuario && (
-              <form className="flex flex-col gap-4" onSubmit={handleComentario}>
+              <div className="mb-4">
+                <div className="text-sm text-gray-600 mb-2">
+                  Comentando como: <span className="font-semibold text-cyan-700">{usuario.nombre}</span>
+                </div>
+                <form className="flex flex-col gap-4" onSubmit={handleComentario}>
                 <textarea
                   placeholder="Deja tu comentario..."
                   className="min-h-[80px] rounded-lg border border-gray-300 p-2 resize-none bg-gray-100"
@@ -461,6 +456,7 @@ const GaleriaDetalle = () => {
                   </p>
                 )}
               </form>
+              </div>
             )}
           </div>
         </section>
