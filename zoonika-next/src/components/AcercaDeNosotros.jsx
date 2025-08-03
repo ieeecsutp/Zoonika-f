@@ -3,7 +3,7 @@ import React from "react";
 
 export default function AcercaDeNosotros() {
   return (
-    <section className="about-section">
+    <section id="acerca" className="about-section">
       <div className="container">
         <div className="about-content">
           <div className="about-text">
