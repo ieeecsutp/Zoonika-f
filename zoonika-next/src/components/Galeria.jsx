@@ -1,6 +1,7 @@
 "use client";
 import React, { useEffect, useState, useRef } from "react";
 import Link from "next/link";
+import { api } from "../utils/api";
 
 // Tipos para usuario y comentarios
 const initialAuth = { email: "", password: "" };
@@ -12,10 +13,13 @@ export default function Galeria() {
 
   // Cargar galerías
   useEffect(() => {
-    fetch("http://localhost:4000/galerias")
-      .then((res) => res.json())
+    api.getGalerias()
       .then((data) => {
         setGalerias(data);
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.error("Error cargando galerías:", error);
         setLoading(false);
       });
   }, []);
@@ -23,7 +27,7 @@ export default function Galeria() {
 
 
   return (
-    <section className="galerias-section">
+    <section id="galeria" className="galerias-section">
       <div className="container">
         <h2 className="galerias-title">Galeria</h2>
         <p className="galerias-subtitle">Conoce más sobre nuestro trabajo y el cariño con el que cuidamos a tus mascotas</p>
