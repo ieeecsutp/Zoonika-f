@@ -50,6 +50,7 @@ const GaleriaDetalle = () => {
   const [comentarioError, setComentarioError] = useState<string>("");
   const [comentarioLoading, setComentarioLoading] = useState<boolean>(false);
   const galeriaId = Array.isArray(params?.id) ? params.id[0] : params?.id;
+  const [mostrarFormulario, setMostrarFormulario] = useState(false);
 
   // Autenticación local solo en memoria
   const [usuario, setUsuario] = useState<Usuario | null>(null);
@@ -140,7 +141,8 @@ const GaleriaDetalle = () => {
   // Cargar galería y comentarios
   useEffect(() => {
     if (!galeriaId) return;
-    api.getGaleria(galeriaId)
+    api
+      .getGaleria(galeriaId)
       .then((data) => {
         // Verificamos que 'data' sea un objeto, no un array ni nulo
         if (!data || Array.isArray(data)) {
@@ -179,7 +181,7 @@ const GaleriaDetalle = () => {
     setComentarioLoading(true);
     try {
       if (!usuario) throw new Error("Debes iniciar sesión");
-      
+
       const body = {
         comentario,
         valoracion,
@@ -195,12 +197,14 @@ const GaleriaDetalle = () => {
       }
 
       if (data.error) throw new Error(data.error);
-      
+
       // Refrescar comentarios
       setComentarioId(data.id);
       setComentario(data.comentario);
       setValoracion(data.valoracion);
-      
+
+      setMostrarFormulario(false);
+
       // Recargar galería para mostrar comentarios actualizados
       const updatedGaleria = await api.getGaleria(galeriaId);
       setGaleria(updatedGaleria);
@@ -210,6 +214,7 @@ const GaleriaDetalle = () => {
       setComentarioLoading(false);
     }
   };
+
 
   if (loading) {
     return (
@@ -281,7 +286,9 @@ const GaleriaDetalle = () => {
                   >
                     <div className="flex items-center gap-2 mb-1">
                       <span className="font-semibold text-cyan-700">
-                        {comentario.usuario?.nombre || comentario.usuario?.email || `Usuario registrado`}
+                        {comentario.usuario?.nombre ||
+                          comentario.usuario?.email ||
+                          `Usuario registrado`}
                       </span>
                       <span className="text-yellow-400 text-lg">
                         {"★".repeat(comentario.valoracion)}
@@ -397,65 +404,99 @@ const GaleriaDetalle = () => {
             )}
             {usuario && (
               <div className="mb-4">
-                <div className="text-sm text-gray-600 mb-2">
-                  Comentando como: <span className="font-semibold text-cyan-700">{usuario.nombre}</span>
-                </div>
-                <form className="flex flex-col gap-4" onSubmit={handleComentario}>
-                <textarea
-                  placeholder="Deja tu comentario..."
-                  className="min-h-[80px] rounded-lg border border-gray-300 p-2 resize-none bg-gray-100"
-                  value={comentario}
-                  onChange={(e) => setComentario(e.target.value)}
-                  required
-                />
-                <div className="text-yellow-400 text-2xl flex gap-1">
-                  {Array.from({ length: 5 }, (_, i) => (
-                    <span
-                      key={i}
-                      className={
-                        valoracion > i
-                          ? "cursor-pointer"
-                          : "cursor-pointer opacity-40"
-                      }
-                      onClick={() => setValoracion(i + 1)}
-                      role="button"
-                      aria-label={`Valorar ${i + 1} estrellas`}
-                    >
-                      ★
+                <div className="text-sm text-gray-600 mb-3">
+                  <div>
+                    Comentando como:{" "}
+                    <span className="font-semibold text-cyan-700">
+                      {usuario.nombre}
                     </span>
-                  ))}
+                    {/* Texto de editar con "aquí" clickeable */}
+                    {comentarioId && !mostrarFormulario && (
+                      <p className="text-green-600 text-xs mb-2">
+                        Edita tu comentario{" "}
+                        <span
+                          className="cursor-pointer underline hover:text-green-800"
+                          onClick={() => setMostrarFormulario(true)}
+                        >
+                          aquí
+                        </span>
+                        .
+                      </p>
+                    )}
+                  </div>
+                  {/* Cerrar sesión solo si el formulario NO está activo */}
+                  {!mostrarFormulario && (
+                    <div className="mt-2">
+                      <button
+                        type="button"
+                        onClick={handleLogout}
+                        className="logout-btn"
+                      >
+                        Cerrar sesión
+                      </button>
+                    </div>
+                  )}
                 </div>
-                <div className="flex gap-2 items-center">
-                  <button
-                    type="submit"
-                    className="bg-cyan-600 text-white rounded-lg px-6 py-2 text-base font-semibold disabled:opacity-60"
-                    disabled={comentarioLoading}
+
+                {/* Formulario visible solo si mostrarFormulario es true */}
+                {mostrarFormulario && (
+                  <form
+                    className="flex flex-col gap-4"
+                    onSubmit={handleComentario}
                   >
-                    {comentarioId
-                      ? comentarioLoading
-                        ? "Guardando..."
-                        : "Editar comentario"
-                      : comentarioLoading
-                      ? "Enviando..."
-                      : "Comentar"}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleLogout}
-                    className="logout-btn"
-                  >
-                    Cerrar sesión
-                  </button>
-                </div>
-                {comentarioError && (
-                  <p className="text-red-500 text-sm">{comentarioError}</p>
+                    <textarea
+                      placeholder="Deja tu comentario..."
+                      className="min-h-[80px] rounded-lg border border-gray-300 p-2 resize-none bg-gray-100"
+                      value={comentario}
+                      onChange={(e) => setComentario(e.target.value)}
+                      required
+                    />
+                    <div className="text-yellow-400 text-2xl flex gap-1">
+                      {Array.from({ length: 5 }, (_, i) => (
+                        <span
+                          key={i}
+                          className={
+                            valoracion > i
+                              ? "cursor-pointer"
+                              : "cursor-pointer opacity-40"
+                          }
+                          onClick={() => setValoracion(i + 1)}
+                          role="button"
+                          aria-label={`Valorar ${i + 1} estrellas`}
+                        >
+                          ★
+                        </span>
+                      ))}
+                    </div>
+                    <div className="flex gap-2 items-center">
+                      <button
+                        type="submit"
+                        className="bg-cyan-600 text-white rounded-lg px-6 py-2 text-base font-semibold disabled:opacity-60"
+                        disabled={comentarioLoading}
+                      >
+                        {comentarioId
+                          ? comentarioLoading
+                            ? "Guardando..."
+                            : "Actualizar"
+                          : comentarioLoading
+                          ? "Enviando..."
+                          : "Comentar"}
+                      </button>
+
+                      {comentarioId && (
+                        <button
+                          type="button"
+                          className="delete-btn"
+                        >
+                          Eliminar
+                        </button>
+                      )}
+                    </div>
+                    {comentarioError && (
+                      <p className="text-red-500 text-sm">{comentarioError}</p>
+                    )}
+                  </form>
                 )}
-                {comentarioId && (
-                  <p className="text-green-600 text-xs">
-                    Puedes editar tu comentario.
-                  </p>
-                )}
-              </form>
               </div>
             )}
           </div>
@@ -517,7 +558,18 @@ const GaleriaDetalle = () => {
           margin-top: 0.2rem;
         }
         .logout-btn {
+          background: #72b0fcff !important;
+          color: #000000ff !important;
+          border: none;
+          padding: 0.5rem 1rem;
+        }
+        .delete-btn {
           background: #e74c3c !important;
+          color: #fff !important;
+          border: none;
+          padding: 0.5rem 1rem;
+          border-radius: 5px;
+          cursor: pointer;
         }
       `}</style>
       <Footer />
