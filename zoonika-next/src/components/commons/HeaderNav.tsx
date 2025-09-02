@@ -1,11 +1,29 @@
 "use client";
-import React from "react";
+import Link from "next/link";
+import { useState, useRef, useEffect } from "react";
+import { useAuth } from "../../context/authContext";
 
 interface HeaderNavProps {
   isLanding?: boolean;
 }
 
 const HeaderNav: React.FC<HeaderNavProps> = ({ isLanding = true }) => {
+  const { user, logout } = useAuth();
+  const [open, setOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  // Cerrar el menú si hago clic fuera
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
   return (
     <header
       id="mainHeader"
@@ -51,9 +69,64 @@ const HeaderNav: React.FC<HeaderNavProps> = ({ isLanding = true }) => {
         {/* Iconos solo en landing */}
         {isLanding && (
           <div className="hidden md:flex space-x-4">
-            <i className="fa-brands fa-facebook text-[1.3rem] hover:text-blue-500 transition-colors duration-200"></i>
-            <i className="fa-brands fa-whatsapp text-[1.3rem] hover:text-green-500 transition-colors duration-200"></i>
-            <i className="fa-brands fa-instagram text-[1.3rem] hover:text-pink-500 transition-colors duration-200"></i>
+            {!user ? (
+              <Link
+                href="/auth/login"
+                className="p-2 rounded-full hover:bg-blue-100 transition-colors duration-200"
+                aria-label="inicio de sesion"
+              >
+                Iniciar Sesión
+              </Link>
+            ) : (
+              <>
+                {/* Icono de Usuario con nombre */}
+                <div className="flex items-center gap-2">
+                  <div className="relative" ref={menuRef}>
+                    {/* Botón principal */}
+                    <button
+                      className="flex items-center gap-2 p-2 rounded-full hover:bg-blue-100 transition"
+                      onClick={() => setOpen(!open)}
+                    >
+                      <span className="text-gray-700 font-semibold">
+                        {user?.nombre}
+                      </span>
+                      <i className="fa-solid fa-circle-user text-cyan-600 text-xl"></i>
+                    </button>
+
+                    {/* Menú desplegable */}
+                    {open && (
+                      <div className="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-xl border border-gray-200 z-50">
+                        <ul className="flex flex-col text-gray-700">
+                          <li>
+                            <button
+                              className="w-full text-left px-4 py-2 hover:bg-cyan-50 transition"
+                              onClick={() => {
+                                setOpen(false);
+                                // Aquí puedes redirigir a la página de reservas
+                                console.log("Ir a reservas");
+                              }}
+                            >
+                              Reservas
+                            </button>
+                          </li>
+                          <li>
+                            <button
+                              className="w-full text-left px-4 py-2 hover:bg-red-50 text-red-500 transition"
+                              onClick={() => {
+                                logout();
+                                setOpen(false);
+                              }}
+                            >
+                              Cerrar sesión
+                            </button>
+                          </li>
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </>
+            )}
           </div>
         )}
 
