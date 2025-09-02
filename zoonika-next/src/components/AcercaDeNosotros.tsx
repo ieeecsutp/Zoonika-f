@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 
-export default function AcercaDeNosotros() {
+const AcercaDeNosotros: React.FC = () => {
   return (
     <section className="about-section">
       <div className="container">
@@ -23,11 +23,15 @@ export default function AcercaDeNosotros() {
           </div>
           <div className="about-image">
             <div className="image-container">
-              <img src="/img/imgVeterinaria.png" alt="Veterinario atendiendo mascota" />
+              <img
+                src="/img/imgVeterinaria.png"
+                alt="Veterinario atendiendo mascota"
+              />
             </div>
           </div>
         </div>
       </div>
+
       <style jsx>{`
         .about-section {
           padding: 5rem 0;
@@ -112,4 +116,6 @@ export default function AcercaDeNosotros() {
       `}</style>
     </section>
   );
-}
+};
+
+export default AcercaDeNosotros;

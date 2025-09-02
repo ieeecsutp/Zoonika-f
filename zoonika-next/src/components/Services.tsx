@@ -1,55 +1,68 @@
 "use client";
 import React from "react";
 
-const services = [
+// Tipado del servicio
+interface Service {
+  icon: string;
+  title: string;
+  description: string;
+  features: string[];
+}
+
+// Lista de servicios
+const services: Service[] = [
   {
     icon: "🩺",
     title: "Consultas Generales",
     description: "Exámenes de rutina, diagnósticos y seguimiento de la salud de tu mascota",
-    features: ["Revisiones completas", "Diagnósticos de enfermedades", "Control de peso y nutrición"]
+    features: ["Revisiones completas", "Diagnósticos de enfermedades", "Control de peso y nutrición"],
   },
   {
     icon: "🛡️",
     title: "Vacunación",
     description: "Programas de vacunación personalizados para proteger a tu mascota",
-    features: ["Vacunas básicas y opcionales", "Calendarios personalizados", "Certificados oficiales"]
+    features: ["Vacunas básicas y opcionales", "Calendarios personalizados", "Certificados oficiales"],
   },
   {
     icon: "🔬",
     title: "Cirugías",
     description: "Procedimientos quirúrgicos con tecnología avanzada y cuidado especializado",
-    features: ["Esterilizaciones", "Cirugías de emergencia", "Procedimientos especializados"]
+    features: ["Esterilizaciones", "Cirugías de emergencia", "Procedimientos especializados"],
   },
   {
     icon: "💙",
     title: "Cuidados Intensivos",
     description: "Atención especializada para mascotas en condiciones críticas",
-    features: ["Hospitalización", "Monitoreo 24/7", "Tratamientos intensivos"]
+    features: ["Hospitalización", "Monitoreo 24/7", "Tratamientos intensivos"],
   },
   {
     icon: "🚨",
     title: "Emergencias",
     description: "Servicio de urgencia disponible las 24 horas del día",
-    features: ["Atención inmediata", "Disponible 24/7", "Equipo especializado"]
+    features: ["Atención inmediata", "Disponible 24/7", "Equipo especializado"],
   },
   {
     icon: "✂️",
     title: "Peluquería",
     description: "Servicios de estética y cuidado personal para tu mascota",
-    features: ["Baño y secado", "Corte de pelo", "Corte de uñas"]
-  }
+    features: ["Baño y secado", "Corte de pelo", "Corte de uñas"],
+  },
 ];
 
-export default function Services() {
+const Services: React.FC = () => {
   return (
     <section id="services" className="services-section">
       <div className="container">
         <h2 className="services-title">Nuestros Servicios</h2>
-        <p className="services-subtitle">Ofrecemos una amplia gama de servicios veterinarios para mantener a tu mascota saludable y feliz</p>
+        <p className="services-subtitle">
+          Ofrecemos una amplia gama de servicios veterinarios para mantener a tu mascota saludable y feliz
+        </p>
         <div className="services-grid">
           {services.map((service, idx) => (
             <div className="service-card" key={idx}>
-              <div className="service-icon" style={{fontSize: '2.5rem'}}>{service.icon}</div>
+              <div className="service-icon" style={{ fontSize: "2.5rem" }}>
+                {service.icon}
+              </div>
               <h3 className="service-title">{service.title}</h3>
               <p className="service-description">{service.description}</p>
               <ul className="service-features">
@@ -61,6 +74,7 @@ export default function Services() {
           ))}
         </div>
       </div>
+
       <style jsx>{`
         .services-section {
           padding: 4rem 0;
@@ -97,6 +111,7 @@ export default function Services() {
           background: white;
           padding: 2rem;
           border-radius: 12px;
+          transition: all 0.3s ease;
         }
         .service-card:hover {
           box-shadow: 0 8px 30px rgba(23, 162, 184, 0.12);
@@ -133,4 +148,6 @@ export default function Services() {
       `}</style>
     </section>
   );
-}
+};
+
+export default Services;

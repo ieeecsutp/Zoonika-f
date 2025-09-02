@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 
-export default function Footer() {
+const Footer: React.FC = () => {
   return (
     <footer className="bg-cyan-700 text-white px-6 py-7">
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row gap-7 text-center md:text-left">
@@ -26,10 +26,13 @@ export default function Footer() {
         {/* Créditos/Autor */}
         <div className="order-3 md:order-2 w-full md:w-1/3 flex items-center justify-center md:justify-start">
           <p className="font-[var(--font-inter)] text-base text-gray-50">
-            © <span id="year">{new Date().getFullYear()}</span> <strong>Zoonika</strong> Todos los derechos reservados.
+            © <span id="year">{new Date().getFullYear()}</span>{" "}
+            <strong>Zoonika</strong> Todos los derechos reservados.
           </p>
         </div>
       </div>
     </footer>
   );
-}
+};
+
+export default Footer;

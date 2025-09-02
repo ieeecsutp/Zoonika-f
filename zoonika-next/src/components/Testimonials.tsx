@@ -1,7 +1,15 @@
 "use client";
 import React from "react";
 
-const testimonials = [
+// Tipado para cada testimonio
+interface Testimonial {
+  name: string;
+  text: string;
+  rating: number;
+}
+
+// Array de testimonios tipado
+const testimonials: Testimonial[] = [
   {
     name: "Sofía Ruiz",
     text: "Muy buen servicio. Me ayudaron con la vacunación completa de mi cachorra y me asesoraron sobre su alimentación. Todos muy atentos, precios promocionales.",
@@ -34,12 +42,14 @@ const testimonials = [
   }
 ];
 
-export default function Testimonials() {
+const Testimonials: React.FC = () => {
   return (
     <section id="testimonio" className="testimonials-section">
       <div className="container">
         <h2 className="testimonials-title">Opiniones de nuestros clientes</h2>
-        <p className="testimonials-subtitle">La lealtad y confianza de nuestros clientes son la mayor recompensa a nuestro esfuerzo</p>
+        <p className="testimonials-subtitle">
+          La lealtad y confianza de nuestros clientes son la mayor recompensa a nuestro esfuerzo
+        </p>
         <div className="testimonials-grid">
           {testimonials.map((testimonial, idx) => (
             <div className="testimonial-card" key={idx}>
@@ -54,6 +64,7 @@ export default function Testimonials() {
           ))}
         </div>
       </div>
+
       <style jsx>{`
         .testimonials-section {
           padding: 4rem 0;
@@ -123,4 +134,6 @@ export default function Testimonials() {
       `}</style>
     </section>
   );
-}
+};
+
+export default Testimonials;

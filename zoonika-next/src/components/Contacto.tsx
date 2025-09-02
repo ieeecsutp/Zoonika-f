@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 
-export default function Contacto() {
+const Contacto: React.FC = () => {
   return (
     <section className="contact-section">
       <div className="container">
@@ -14,21 +14,36 @@ export default function Contacto() {
             <form className="contact-form">
               <div className="form-group">
                 <label htmlFor="nombre">Nombre Completo</label>
-                <input type="text" id="nombre" placeholder="Ingresa tu Nombre" />
+                <input
+                  type="text"
+                  id="nombre"
+                  placeholder="Ingresa tu Nombre"
+                />
               </div>
               <div className="form-group">
                 <label htmlFor="email">Email</label>
-                <input type="email" id="email" placeholder="Ingresa tu Email" />
+                <input
+                  type="email"
+                  id="email"
+                  placeholder="Ingresa tu Email"
+                />
               </div>
               <div className="form-group">
                 <label htmlFor="mensaje">Mensaje</label>
-                <textarea id="mensaje" rows="4" placeholder="Ingresa tu mensaje"></textarea>
+                <textarea
+                  id="mensaje"
+                  rows={4}
+                  placeholder="Ingresa tu mensaje"
+                ></textarea>
               </div>
-              <button type="submit" className="submit-btn">Enviar</button>
+              <button type="submit" className="submit-btn">
+                Enviar
+              </button>
             </form>
           </div>
         </div>
       </div>
+
       <style jsx>{`
         .contact-section {
           padding: 5rem 0;
@@ -110,4 +125,6 @@ export default function Contacto() {
       `}</style>
     </section>
   );
-}
+};
+
+export default Contacto;

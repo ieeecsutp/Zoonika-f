@@ -1,7 +1,18 @@
-import React from "react";
+import React, { ReactNode } from "react";
 import Head from "next/head";
 
-export default function ZoonikaLayout({ title, description = "Zoonika - Cuidamos con amor cada mascota", children }) {
+// Tipado de props
+interface ZoonikaLayoutProps {
+  title: string;
+  description?: string;
+  children: ReactNode;
+}
+
+const ZoonikaLayout: React.FC<ZoonikaLayoutProps> = ({
+  title,
+  description = "Zoonika - Cuidamos con amor cada mascota",
+  children
+}) => {
   return (
     <>
       <Head>
@@ -10,13 +21,26 @@ export default function ZoonikaLayout({ title, description = "Zoonika - Cuidamos
         <meta name="viewport" content="width=device-width" />
         <meta name="description" content={description} />
         <title>{title}</title>
+
         {/* Google Fonts */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" crossOrigin="anonymous" referrerPolicy="no-referrer" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+          rel="stylesheet"
+        />
+
+        {/* Font Awesome */}
+        <link
+          rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+          crossOrigin="anonymous"
+          referrerPolicy="no-referrer"
+        />
       </Head>
+
       {children}
+
       <style jsx global>{`
         * {
           margin: 0;
@@ -89,4 +113,6 @@ export default function ZoonikaLayout({ title, description = "Zoonika - Cuidamos
       `}</style>
     </>
   );
-}
+};
+
+export default ZoonikaLayout;
