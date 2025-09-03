@@ -52,8 +52,7 @@ export default function AuthForm({ type }: AuthFormProps) {
 
     if (!res.ok) throw new Error(responseData.error || "Error en la autenticación");
 
-    // ✅ Guardar en el contexto
-    login(responseData); // responseData debe contener { id, nombre, email }
+    login(responseData); // responseData contiene { id, nombre, email }
 
     router.push("/");
   } catch (err: any) {
